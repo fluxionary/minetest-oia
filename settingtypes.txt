@@ -1,0 +1,2 @@
+# overrides `minetest.get_objects_in_area` and `minetest.get_objects_inside_radius` on startup.
+oia:override_builtin (override builtin functions) bool false

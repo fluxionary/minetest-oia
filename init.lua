@@ -112,14 +112,14 @@ minetest.register_chatcommand("oia_benchmark", {
 
 		local goia = builtin_get_objects_in_area
 		local start = clock()
-		for _ = 1, #trials do
+		for _ = 1, trials do
 			goia(pmin, pmax)
 		end
 		local builtin_elapsed = clock() - start
 
 		goia = oia.get_objects_in_area
 		start = clock()
-		for _ = 1, #trials do
+		for _ = 1, trials do
 			goia(pmin, pmax)
 		end
 		local oia_elapsed = clock() - start

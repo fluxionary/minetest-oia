@@ -29,31 +29,41 @@ minetest.register_globalstep(function()
 	oia.pst = futil.PointSearchTree(pos_and_values)
 end)
 
-function oia.get_objects_in_area(pmin, pmax)
-	pmin, pmax = vector.sort(pmin, pmax)
+if oia.settings.verify_objects then
+	function oia.get_objects_in_area(pmin, pmax)
+		pmin, pmax = vector.sort(pmin, pmax)
 
-	local objects = {}
-	for _, obj in oia.pst:iterate_values_in_area(pmin, pmax) do
-		local pos = obj:get_pos()
-		if pos and in_area(pos, pmin, pmax) then
-			objects[#objects + 1] = obj
+		local objects = {}
+		for _, obj in oia.pst:iterate_values_in_area(pmin, pmax) do
+			local pos = obj:get_pos()
+			if pos and in_area(pos, pmin, pmax) then
+				objects[#objects + 1] = obj
+			end
 		end
+
+		return objects
 	end
 
-	return objects
-end
+	function oia.get_objects_inside_radius(center, radius)
+		local objects = {}
 
-function oia.get_objects_inside_radius(center, radius)
-	local objects = {}
-
-	for _, obj in oia.pst:iterate_objects_inside_radius(center, radius) do
-		local pos = obj:get_pos()
-		if pos and v_distance(center, pos) <= radius then
-			objects[#objects + 1] = obj
+		for _, obj in oia.pst:iterate_values_inside_radius(center, radius) do
+			local pos = obj:get_pos()
+			if pos and v_distance(center, pos) <= radius then
+				objects[#objects + 1] = obj
+			end
 		end
+
+		return objects
+	end
+else
+	function oia.get_objects_in_area(pmin, pmax)
+		return oia.pst:get_values_in_area(pmin, pmax)
 	end
 
-	return objects
+	function oia.get_objects_inside_radius(center, radius)
+		return oia.pst:get_values_inside_radius(center, radius)
+	end
 end
 
 local builtin_get_objects_in_area = minetest.get_objects_in_area

@@ -2,6 +2,8 @@ futil.check_version({ year = 2023, month = 6, day = 17 })
 
 oia = fmod.create()
 
+local f = string.format
+
 local in_area = function(pos, pmin, pmax)
 	return pmin.x <= pos.x
 		and pos.x <= pmax.x
@@ -91,6 +93,72 @@ minetest.register_chatcommand("oia_override", {
 		else
 			return false, S("invalid argument")
 		end
+	end,
+})
+
+minetest.register_chatcommand("oia_validate", {
+	description = S("test whether oia and the engine find the same entities"),
+	params = "<radius>",
+	privs = { server = true },
+	func = function(name, param)
+		local player = minetest.get_player_by_name(name)
+		if not player then
+			return false, S("you are not connected")
+		end
+
+		local radius = param:match("^%s*(%S+)%s*$")
+		radius = tonumber(radius)
+		if not radius or radius < 0 then
+			return false, S("invalid radius")
+		end
+
+		local ppos = player:get_pos()
+		local pmin = vector.subtract(ppos, radius)
+		local pmax = vector.add(ppos, radius)
+
+		local builtin_oia = builtin_get_objects_in_area(pmin, pmax)
+		local oia_oia = oia.get_objects_in_area(pmin, pmax)
+
+		if #builtin_oia ~= #oia_oia then
+			return false, f("goia: number of objects differ (builtin=%i; oia=%i)", #builtin_oia, #oia_oia)
+		end
+
+		local builtin_set = {}
+		for _, obj in ipairs(builtin_oia) do
+			builtin_set[obj] = true
+		end
+
+		local oia_set = {}
+		for _, obj in ipairs(oia_oia) do
+			oia_set[obj] = true
+		end
+
+		if not futil.equals(builtin_set, oia_set) then
+			return false, f("goia: sets differ")
+		end
+
+		local builtin_oir = builtin_get_objects_inside_radius(ppos, radius)
+		local oia_oir = oia.get_objects_inside_radius(ppos, radius)
+
+		if #builtin_oir ~= #oia_oir then
+			return false, f("goir: number of objects differ (builtin=%i; oia=%i)", #builtin_oir, #oia_oir)
+		end
+
+		builtin_set = {}
+		for _, obj in ipairs(builtin_oir) do
+			builtin_set[obj] = true
+		end
+
+		oia_set = {}
+		for _, obj in ipairs(oia_oir) do
+			oia_set[obj] = true
+		end
+
+		if not futil.equals(builtin_set, oia_set) then
+			return false, f("goir: sets differ")
+		end
+
+		return true, f("validation successful (%i & %i objects found)", #builtin_oia, #builtin_oir)
 	end,
 })
 

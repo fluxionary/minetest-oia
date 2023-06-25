@@ -17,7 +17,7 @@ local v_distance = vector.distance
 
 local S = oia.S
 
-oia.pst = futil.PointSearchTree({})
+oia.pst = futil.PointSearchTree()
 
 minetest.register_globalstep(function()
 	local pos_and_values = {}

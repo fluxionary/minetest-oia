@@ -186,21 +186,21 @@ minetest.register_chatcommand("oia_benchmark", {
 		local ppos = player:get_pos()
 		local pmin = vector.subtract(ppos, radius)
 		local pmax = vector.add(ppos, radius)
-		local clock = os.clock
+		local get_us_time = minetest.get_us_time
 
 		local goia = builtin_get_objects_in_area
-		local start = clock()
+		local start = get_us_time()
 		for _ = 1, trials do
 			goia(pmin, pmax)
 		end
-		local builtin_elapsed = clock() - start
+		local builtin_elapsed = get_us_time() - start
 
 		goia = oia.get_objects_in_area
-		start = clock()
+		start = get_us_time()
 		for _ = 1, trials do
 			goia(pmin, pmax)
 		end
-		local oia_elapsed = clock() - start
+		local oia_elapsed = get_us_time() - start
 
 		return true,
 			S(

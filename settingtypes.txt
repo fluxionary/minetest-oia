@@ -1,5 +1,5 @@
 # overrides `minetest.get_objects_in_area` and `minetest.get_objects_inside_radius` on startup.
-oia:override_builtin (override builtin functions) bool false
+oia.override_builtin (override builtin functions) bool false
 
 # ensure that objects are valid and inside bounds. if false, returned objects may be stale or may have moved.
-oia:verify_objects (verify object position) bool true
+oia.verify_objects (verify object position) bool true
